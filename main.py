@@ -4,14 +4,15 @@ from dotenv import load_dotenv
 
 from search import add_text_to_database_and_index
 from search import search_similar_text
+from test import helper
 
 # 设置 OpenAI 的 API 密钥
 load_dotenv()
 openai.api_key = os.getenv('openai_api_key')
 
-DB_NAME = "embeddings.db"
-FAISS_INDEX_FILE = "faiss_index.bin"
-EMBEDDING_DIM = 1536  # 假设使用 text-embedding-ada-002
+# DB_NAME = "embeddings.db"
+# FAISS_INDEX_FILE = "faiss_index.bin"
+# EMBEDDING_DIM = 1536  # 假设使用 text-embedding-ada-002
 
 # 初始化全局 messages
 messages = [
@@ -30,8 +31,17 @@ def hoshino_chat(user_input):
     和 Hoshino 进行聊天的核心函数，支持短期记忆。
     """
     try:
+        query_result = ""
         # 查询数据库内容
-        query_result = search_similar_text(user_input, k=1)
+        check_database = helper(user_input)[1]
+        if (check_database == "1"): 
+            query_result = search_similar_text(user_input, k=1)
+        else :
+            query_result = ""
+        # print(check_database)
+        # print(query_result)
+
+        # query_result = search_similar_text(user_input, k=1)
 
         # 将用户输入及数据库上下文添加到 messages
         messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}"})
