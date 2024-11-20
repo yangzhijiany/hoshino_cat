@@ -81,7 +81,7 @@ def hoshino_chat(user_input):
                 })
 
                 final_response = openai.ChatCompletion.create(
-                    model="gpt-4-0613",
+                    model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",
                     messages=messages
                 )
                 assistant_reply = final_response["choices"][0]["message"]["content"]
