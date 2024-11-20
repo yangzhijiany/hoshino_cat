@@ -1,20 +1,29 @@
 import openai
 import os
 from dotenv import load_dotenv
+import datetime
 
-from search import add_text_to_database_and_index
-from search import search_similar_text
-from test import helper
-
-# 设置 OpenAI 的 API 密钥
 load_dotenv()
 openai.api_key = os.getenv('openai_api_key')
 
-# DB_NAME = "embeddings.db"
-# FAISS_INDEX_FILE = "faiss_index.bin"
-# EMBEDDING_DIM = 1536  # 假设使用 text-embedding-ada-002
+def get_current_time():
+    """返回当前时间的字符串"""
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
 
-# 初始化全局 messages
+functions = [
+    {
+        "name": "get_time",
+        "description": "获取当前时间。",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    }
+]
+
+# 初始化消息历史
 messages = [
     {
         "role": "system",
@@ -26,46 +35,45 @@ messages = [
     }
 ]
 
+# 主聊天函数
 def hoshino_chat(user_input):
     """
-    和 Hoshino 进行聊天的核心函数，支持短期记忆。
+    和 Hoshino 聊天，支持 Function Calling。
     """
     try:
-        query_result = ""
-        # 查询数据库内容
-        check_database = helper(user_input)[1]
-        if (check_database == "1"): 
-            query_result = search_similar_text(user_input, k=1)
-        else :
-            query_result = ""
-        # print(check_database)
-        # print(query_result)
-
-        # query_result = search_similar_text(user_input, k=1)
-
-        # 将用户输入及数据库上下文添加到 messages
-        messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}"})
+        # 用户输入加入对话
+        messages.append({"role": "user", "content": user_input})
 
         # 调用 OpenAI API
         response = openai.ChatCompletion.create(
-            model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",  # 替换为你的微调模型名称
+            model="gpt-4-0613",
             messages=messages,
-            temperature=1.65,
-            max_tokens=200,
-            top_p=0.9,
-            frequency_penalty=0,
-            presence_penalty=0
+            functions=functions,
+            function_call="auto"  # 自动检测是否需要调用函数
         )
 
-        # 获取模型生成的回复
+        if response["choices"][0]["message"].get("function_call"):
+            function_call = response["choices"][0]["message"]["function_call"]
+            function_name = function_call["name"]
+            if function_name == "get_time":
+                result = get_current_time()
+                messages.append({
+                    "role": "function",
+                    "name": "get_time",
+                    "content": result
+                })
+
+                final_response = openai.ChatCompletion.create(
+                    model="gpt-4-0613",
+                    messages=messages
+                )
+                return final_response["choices"][0]["message"]["content"]
+
         assistant_reply = response["choices"][0]["message"]["content"]
-
-        # 将模型的回复添加到 messages
         messages.append({"role": "assistant", "content": assistant_reply})
-
         return assistant_reply
+
     except Exception as e:
-        # 捕获错误并返回
         return f"出现错误喵: {str(e)}"
 
 # 主循环

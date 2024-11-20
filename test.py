@@ -21,8 +21,6 @@ def helper(user_input):
                         "You are an AI that decides whether to call a knowledge base or conversation history. "
                         "Input: "
                         "1. User Input: Current query or statement. "
-                        "2. Knowledge Base (optional): Background knowledge. "
-                        "3. Conversation History (optional): Prior exchanges summary. "
                         "Output: "
                         "- Two integers: [Knowledge Base Call, History Call]. "
                         "- 1 = call needed, 0 = not needed. "
