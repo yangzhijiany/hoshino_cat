@@ -20,7 +20,8 @@ def helper(user_input):
                     "content": (
                         "You are an AI that decides whether to call a knowledge base or conversation history. "
                         "Input: "
-                        "1. User Input: Current query or statement. "
+                        "The user's response or query, if it contains names or real-life characters or terminologies,"
+                        "it's likely that Knowledge Base is needed."
                         "Output: "
                         "- Two integers: [Knowledge Base Call, History Call]. "
                         "- 1 = call needed, 0 = not needed. "
