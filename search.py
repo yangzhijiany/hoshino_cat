@@ -124,6 +124,56 @@ def search_similar_text(query, k=3):
 
     return results
 
+def sync_index_with_database():
+    """
+    同步 FAISS 索引与 SQLite 数据库的内容。
+    删除索引中不存在于数据库的嵌入。
+    """
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    # 获取数据库中所有的有效 ID
+    cursor.execute("SELECT id FROM documents")
+    db_ids = set(row[0] for row in cursor.fetchall())
+    conn.close()
+    
+    # 获取索引中的所有 ID
+    index_ids = faiss.vector_to_array(index.id_map) if index.ntotal > 0 else np.array([])
+    
+    # 找出需要删除的 ID
+    ids_to_remove = [int(id_) for id_ in index_ids if id_ not in db_ids]
+    
+    if ids_to_remove:
+        print(f"从索引中移除以下ID：{ids_to_remove}")
+        index.remove_ids(np.array(ids_to_remove).astype('int64'))
+        # 保存更新后的索引
+        faiss.write_index(index, FAISS_INDEX_FILE)
+    else:
+        print("索引和数据库已经同步，无需更新。")
+
+def rebuild_index_from_database():
+    """
+    从 SQLite 数据库重新构建索引。
+    """
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    # 清空现有索引
+    index.reset()
+    
+    # 遍历数据库内容并重新添加到索引
+    cursor.execute("SELECT id, text FROM documents")
+    for doc_id, text in cursor.fetchall():
+        embedding = get_embedding(text)
+        embedding_np = np.array([embedding]).astype('float32')
+        ids = np.array([doc_id]).astype('int64')
+        index.add_with_ids(embedding_np, ids)
+    
+    # 保存索引
+    faiss.write_index(index, FAISS_INDEX_FILE)
+    print("索引已重新构建。")
+    conn.close()
+
 if __name__ == "__main__":
     # 示例：添加文本
     texts = [

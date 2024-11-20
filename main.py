@@ -9,9 +9,9 @@ from search import search_similar_text
 load_dotenv()
 openai.api_key = os.getenv('openai_api_key')
 
-DB_NAME = "embeddings.db"
-FAISS_INDEX_FILE = "faiss_index.bin"
-EMBEDDING_DIM = 1536  # 假设使用 text-embedding-ada-002
+# DB_NAME = "embeddings.db"
+# FAISS_INDEX_FILE = "faiss_index.bin"
+# EMBEDDING_DIM = 1536  # 假设使用 text-embedding-ada-002
 
 def hoshino_chat(user_input):
     """
