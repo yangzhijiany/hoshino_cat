@@ -16,8 +16,8 @@ functions = [
         "name": "get_time",
         "description": "获取当前时间。",
         "parameters": {
-            "type": "object",  # 必须定义参数类型
-            "properties": {},  # 工具没有参数
+            "type": "object",
+            "properties": {},
             "required": []
         }
     }
@@ -46,7 +46,6 @@ def hoshino_chat(user_input):
     """
     try:
         query_result = ""
-        # 查询数据库内容
         query_result = search_similar_text(user_input, k=1)
         check_database = helper(user_input)[1]
         if check_database == "1":
@@ -54,12 +53,10 @@ def hoshino_chat(user_input):
         else:
             query_result = ""
 
-        # 将用户输入及数据库上下文添加到 messages
         messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}"})
 
-        # 调用 OpenAI API
         response = openai.ChatCompletion.create(
-            model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",  # 替换为你的微调模型名称
+            model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",
             messages=messages,
             functions=functions,
             temperature=1.65,
@@ -69,25 +66,20 @@ def hoshino_chat(user_input):
             presence_penalty=0
         )
 
-        # 获取模型生成的回复
         assistant_message = response["choices"][0]["message"]
 
-        # 检查模型是否要求调用函数
         if "function_call" in assistant_message:
             function_call = assistant_message["function_call"]
             function_name = function_call["name"]
             if function_name == "get_time":
-                # 调用对应的函数
                 tool_result = get_time_tool()
 
-                # 将函数的结果添加到对话历史
                 messages.append({
                     "role": "function",
                     "name": function_name,
                     "content": tool_result
                 })
 
-                # 让模型基于函数返回生成最终回答
                 final_response = openai.ChatCompletion.create(
                     model="gpt-4-0613",
                     messages=messages
