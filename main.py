@@ -1,3 +1,4 @@
+import random
 import openai
 import os
 from dotenv import load_dotenv
@@ -65,12 +66,14 @@ def hoshino_chat(user_input):
             add_text_to_database_and_index(user_input)
             print("Knowledge Base Updated")
 
+        random_float = random.random()
         print(check_use)
-        if prob_db >= 0.5:
+        print("random number: ", random_float)
+        if prob_db >= 0.7 or prob_db > random_float:
             query_result = search_similar_text(user_input, k=2)
         else:
             query_result = ""
-        if prob_history >= 0.6:
+        if prob_history >= 0.7 or prob_history > random_float:
             history_result = search_similar_text_history(user_input, k=2)
         else:
             history_result = ""
