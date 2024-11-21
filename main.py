@@ -147,6 +147,9 @@ def main():
             add_text_to_database_and_index_history(his_string)
             print("Hoshino: 再见喵~希望你还会回来找我喵！")
             break
+        elif user_input.lower() == "exit0":
+            print("Hoshino: 再见喵~希望你还会回来找我喵！")
+            break
         response = hoshino_chat(user_input)
         print(f"Hoshino: {response}")
 
