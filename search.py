@@ -176,18 +176,18 @@ def rebuild_index_from_database():
 
 if __name__ == "__main__":
     # 示例：添加文本
-    texts = [
-        "David是Kagari的朋友,他在加拿大的UBC上学,专业是计算机科学."
-    ]
-    for text in texts:
-        add_text_to_database_and_index(text)
+    # texts = [
+    #     "David是Kagari的朋友,他在加拿大的UBC上学,专业是计算机科学."
+    # ]
+    # for text in texts:
+    #     add_text_to_database_and_index(text)
 
-    # 示例：查询 ID 为 1 的文本
-    print(query_text_by_id(1))
+    # # 示例：查询 ID 为 1 的文本
+    # print(query_text_by_id(1))
 
     # 示例：搜索最相似的文本
     query = "David"
-    results = search_similar_text(query, k=2)
+    results = search_similar_text(query, k=3)
     print("最相似的文本：")
     for result in results:
         print(result)

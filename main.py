@@ -40,6 +40,7 @@ messages = [
 ]
 
 message_string = ""
+remember_keywords = ["记住这个", "添加知识", "储存信息", "保存这个", "记下这点", "存一下", "把这个记下来", "记住这一点", "你需要记住这个"]
 
 def get_time_tool():
     """工具：返回当前时间"""
@@ -52,11 +53,16 @@ def hoshino_chat(user_input):
     """
     try:
         query_result = ""
-        query_result = search_similar_text(user_input, k=1)
         check_use = helper(user_input)
+        global remember_keywords
+        if any(keyword in user_input for keyword in remember_keywords):
+            add_text_to_database_and_index(user_input)
+            print("Knowledge Base Updated")
+    
+        print(check_use)
         check_database = check_use[1]
         if check_database == "1":
-            query_result = search_similar_text(user_input, k=1)
+            query_result = search_similar_text(user_input, k=2)
         else:
             query_result = ""
         check_history = check_use[4]
