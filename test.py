@@ -81,6 +81,47 @@ def getSummary(hist):
         # 捕获错误并返回
         return f"出现错误喵: {str(e)}"
     
+def helper2(user_input):
+    """
+    和 Hoshino 进行聊天的核心函数。
+    """
+    try:
+        # 调用 OpenAI API
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",  # 替换为你的微调模型名称
+            messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an AI that decides the probability of needing to call a knowledge base or conversation history. "
+                        "Input: "
+                        "The user's response or query. If it contains names, real-life characters, or specific terminologies, it is more likely that a Knowledge Base Call is needed.\n\n"
+                        "Output:\n"
+                        "Two probabilities: [Knowledge Base Call Probability, History Call Probability], each represented as a decimal between 0.00 and 1.00. The example output: [0.90, 0.25]\n"
+                        "Rules:\n"
+                        "1. If the query likely requires background knowledge, assign a higher Knowledge Base Call Probability (closer to 1.00); otherwise, assign a lower value (closer to 0.00).\n"
+                        "2. If the query requires context from prior conversation, assign a higher History Call Probability; otherwise, assign a lower value.\n"
+                        "4. If neither is needed, assign both probabilities values closer to 0.00.\n"
+                        "Ensure the probabilities sum to a meaningful representation of uncertainty, allowing overlap if both sources are likely relevant."
+                    ),
+                }, 
+                {
+                    "role": "user",
+                    "content": user_input
+                }
+            ],
+            temperature=0,
+            max_tokens=200,
+            top_p=0.9,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        # 返回聊天响应
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        # 捕获错误并返回
+        return f"出现错误喵: {str(e)}"
+
 
 def main():
     print("欢迎来到 helper！随便聊点什么吧，输入 'exit' 退出喵~")

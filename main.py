@@ -7,7 +7,7 @@ from search import add_text_to_database_and_index
 from search import search_similar_text
 from summary import search_similar_text_history
 from summary import add_text_to_database_and_index_history
-from test import helper
+from test import helper, helper2
 from test import getSummary
 
 # 设置 OpenAI 的 API 密钥
@@ -53,22 +53,25 @@ def hoshino_chat(user_input):
     """
     try:
         query_result = ""
-        check_use = helper(user_input)
+        history_result = ""
+
+        check_use = helper2(user_input)
+        probabilities = check_use.strip("[]").split(", ")
+        prob_db = float(probabilities[0])
+        prob_history = float(probabilities[1])
+
         global remember_keywords
         if any(keyword in user_input for keyword in remember_keywords):
             add_text_to_database_and_index(user_input)
             print("Knowledge Base Updated")
-    
+
         print(check_use)
-        check_database = check_use[1]
-        if check_database == "1":
+        if prob_db >= 0.5:
             query_result = search_similar_text(user_input, k=2)
         else:
             query_result = ""
-        check_history = check_use[4]
-        history_result = ""
-        if check_history == "1":
-            history_result = search_similar_text_history(user_input, k=1)
+        if prob_history >= 0.6:
+            history_result = search_similar_text_history(user_input, k=2)
         else:
             history_result = ""
 
