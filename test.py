@@ -94,8 +94,8 @@ def helper2(user_input):
                     "role": "system",
                     "content": (
                         "You are an AI that decides the probability of needing to call a knowledge base or conversation history. "
-                        "Input: "
-                        "The user's response or query. If it contains names, real-life characters, or specific terminologies, it is more likely that a Knowledge Base Call is needed.\n\n"
+                        "The user's response or query. If it contains names, real-life characters, or specific terminologies, it is more likely that a Knowledge Base Call is needed.\n"
+                        "If user is asking about facts about themselfs or you, or your opinions, it's more likely that conversation history is needed."
                         "Output:\n"
                         "Two probabilities: [Knowledge Base Call Probability, History Call Probability], each represented as a decimal between 0.00 and 1.00. The example output: [0.90, 0.25]\n"
                         "Rules:\n"
