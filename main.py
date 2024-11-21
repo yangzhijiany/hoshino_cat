@@ -6,6 +6,7 @@ import datetime
 from search import add_text_to_database_and_index
 from search import search_similar_text
 from test import helper
+from test import getSummary
 
 # 设置 OpenAI 的 API 密钥
 load_dotenv()
@@ -35,6 +36,8 @@ messages = [
     }
 ]
 
+message_string = ""
+
 def get_time_tool():
     """工具：返回当前时间"""
     now = datetime.datetime.now()
@@ -54,7 +57,8 @@ def hoshino_chat(user_input):
             query_result = ""
 
         messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}"})
-
+        global message_string
+        message_string += f"User: {user_input}\n"
         response = openai.ChatCompletion.create(
             model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",
             messages=messages,
@@ -86,15 +90,29 @@ def hoshino_chat(user_input):
                 )
                 assistant_reply = final_response["choices"][0]["message"]["content"]
                 messages.append({"role": "assistant", "content": assistant_reply})
+                message_string += f"Hoshino: {assistant_reply}\n"
                 return assistant_reply
         else:
             assistant_reply = assistant_message["content"]
             messages.append({"role": "assistant", "content": assistant_reply})
+            message_string += f"Hoshino: {assistant_reply}\n"
             return assistant_reply
 
     except Exception as e:
         # 捕获错误并返回
         return f"出现错误喵: {str(e)}"
+    
+
+def save_summary_to_file(timestamp, summary):
+    """
+    Save the conversation summary to a file in the /data directory.
+    """
+    os.makedirs("data", exist_ok=True)
+    filename = f"data/{timestamp.replace(':', '-')}.txt"
+    with open(filename, "w", encoding="utf-8") as file:
+        file.write(f"Timestamp: {timestamp}\n\n")
+        file.write(summary)
+    return filename
 
 # 主循环
 def main():
@@ -102,6 +120,7 @@ def main():
     while True:
         user_input = input("你: ")
         if user_input.lower() == "exit":
+            save_summary_to_file(get_time_tool(), getSummary(message_string))
             print("Hoshino: 再见喵~希望你还会回来找我喵！")
             break
         response = hoshino_chat(user_input)

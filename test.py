@@ -48,15 +48,48 @@ def helper(user_input):
         # 捕获错误并返回
         return f"出现错误喵: {str(e)}"
     
+def getSummary(hist):
+    """
+    和 Hoshino 进行聊天的核心函数。
+    """
+    try:
+        # 调用 OpenAI API
+        response = openai.ChatCompletion.create(
+            model="ft:gpt-4o-mini-2024-07-18:uiuc:hoshino:AUohPwta:ckpt-step-128",
+            messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "你是Hoshino, 一只可爱又邪恶的猫娘, 以下是你最近的一个聊天记录, 总结这个聊天记录以便于你今后查看"
+                        "请用一段完整的话总结，并且用第三人称总结"
+                    ),
+                }, 
+                {
+                    "role": "user",
+                    "content": hist
+                }
+            ],
+            temperature=1.4,
+            max_tokens=500,
+            top_p=0.9,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        # 返回聊天响应
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        # 捕获错误并返回
+        return f"出现错误喵: {str(e)}"
+    
 
 def main():
     print("欢迎来到 helper！随便聊点什么吧，输入 'exit' 退出喵~")
     while True:
-        user_input = input("你: ")
-        if user_input.lower() == "exit":
+        hist = input("你: ")
+        if hist.lower() == "exit":
             print("Hoshino: 再见喵~希望你还会回来找我喵！")
             break
-        response = helper(user_input)
+        response = helper(hist)
         knowledge_base_call = response[1]
         history_call = response[4]
         print(knowledge_base_call)
