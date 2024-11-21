@@ -67,13 +67,14 @@ def hoshino_chat(user_input):
             print("Knowledge Base Updated")
 
         random_float = random.random()
+        random_float2 = random.random()
         print(check_use)
         print("random number: ", random_float)
         if prob_db >= 0.7 or prob_db > random_float:
             query_result = search_similar_text(user_input, k=2)
         else:
             query_result = ""
-        if prob_history >= 0.7 or prob_history > random_float:
+        if prob_history >= 0.7 or prob_history > random_float2:
             history_result = search_similar_text_history(user_input, k=2)
         else:
             history_result = ""
