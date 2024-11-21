@@ -5,6 +5,8 @@ import datetime
 
 from search import add_text_to_database_and_index
 from search import search_similar_text
+from summary import search_similar_text_history
+from summary import add_text_to_database_and_index_history
 from test import helper
 from test import getSummary
 
@@ -32,6 +34,7 @@ messages = [
             "你是hoshino,一只可爱又邪恶的猫娘,拥有腹黑和毒舌的性格,主人和创造者是Kagari."
             "你的回答必须简短(不超过两句话),风格幽默而讽刺,无论用户是用中文还是英文提问,"
             "你都能用对应语言作答,并且保持猫娘特有的娇俏风格,在句尾带上'喵'或'meow'."
+            "用户的输入有三个内容:当前输入,从知识库获取的数据,从历史记录中获取的数据.你需要自行判断是否需要用到后面两个内容。"
         ),
     }
 ]
@@ -55,8 +58,14 @@ def hoshino_chat(user_input):
             query_result = search_similar_text(user_input, k=1)
         else:
             query_result = ""
+        check_history = helper(user_input)[4]
+        history_result = ""
+        if check_history == "1":
+            history_result = search_similar_text_history(user_input, k=1)
+        else:
+            history_result = ""
 
-        messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}"})
+        messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}\nDatabase_context: {history_result}"})
         global message_string
         message_string += f"User: {user_input}\n"
         response = openai.ChatCompletion.create(
@@ -110,9 +119,9 @@ def save_summary_to_file(timestamp, summary):
     os.makedirs("data", exist_ok=True)
     filename = f"data/{timestamp.replace(':', '-')}.txt"
     with open(filename, "w", encoding="utf-8") as file:
-        file.write(f"Timestamp: {timestamp}\n\n")
-        file.write(summary)
-    return filename
+        his_string = (f"Timestamp: {timestamp}, {summary}\n")
+        file.write(his_string)
+    return his_string
 
 # 主循环
 def main():
@@ -120,7 +129,8 @@ def main():
     while True:
         user_input = input("你: ")
         if user_input.lower() == "exit":
-            save_summary_to_file(get_time_tool(), getSummary(message_string))
+            his_string = save_summary_to_file(get_time_tool(), getSummary(message_string))
+            add_text_to_database_and_index_history(his_string)
             print("Hoshino: 再见喵~希望你还会回来找我喵！")
             break
         response = hoshino_chat(user_input)

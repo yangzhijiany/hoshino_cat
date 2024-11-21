@@ -1,6 +1,6 @@
 import sqlite3
 
-def initialize_database(db_name="embeddings.db"):
+def initialize_database(db_name="chat_history.db"):
     """
     初始化 SQLite 数据库，创建所需表。
     """
