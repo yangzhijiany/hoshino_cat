@@ -79,7 +79,7 @@ def hoshino_chat(user_input):
         else:
             history_result = ""
 
-        messages.append({"role": "user", "content": f"User's_input: {user_input}\nDatabase_context: {query_result}\nDatabase_context: {history_result}"})
+        messages.append({"role": "user", "content": f"User's_input: {user_input}\nYour Knowledge: {query_result}\nChat History: {history_result}"})
         global message_string
         message_string += f"User: {user_input}\n"
         response = openai.ChatCompletion.create(

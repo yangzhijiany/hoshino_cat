@@ -94,13 +94,22 @@ def helper2(user_input):
                     "role": "system",
                     "content": (
                         "You are an AI that decides the probability of needing to call a knowledge base or conversation history. "
-                        "The user's response or query. If it contains names, real-life characters, or specific terminologies, it is more likely that a Knowledge Base Call is needed.\n"
-                        "If user is asking about facts about themselfs or you, or your opinions, it's more likely that conversation history is needed."
                         "Output:\n"
                         "Two probabilities: [Knowledge Base Call Probability, History Call Probability], each represented as a decimal between 0.00 and 1.00. The example output: [0.90, 0.25]\n"
                         "Rules:\n"
-                        "1. If the query likely requires background knowledge, assign a higher Knowledge Base Call Probability (closer to 1.00); otherwise, assign a lower value (closer to 0.00).\n"
+
+                        "1. If the query requires background knowledge, assign a higher Knowledge Base Call Probability (closer to 1.00); otherwise, assign a lower value (closer to 0.00).\n"
+                        "If the input contains any names, real-life characters, or specific terminologies, it is more likely that a Knowledge Base Call is needed.\n"
+                        "IF ANY TERMINOLOGIES OR NAMES APPEARS, Knowledge Base Call Probability should > 0.7. "
+                        "Example input: what is the anime Mygo? A reasonable output would be [0.95, 0.5], because mygo is a terminology/name."
+
                         "2. If the query requires context from prior conversation, assign a higher History Call Probability; otherwise, assign a lower value.\n"
+                        "If user is asking about facts about themselfs or you, or your opinions, it's more likely that conversation history is needed."
+                        "Example input: Do you know me? Output: [0.1, 0.9], because it's asking your opinion."
+
+                        "3. If the query contains names/terms and also asks about you, you should have high probability for both."
+                        "Example input: Do you like the anime mygo?  Output: [0.8, 0.8], because mygo is a name/term, and it is asking about you."
+
                         "4. If neither is needed, assign both probabilities values closer to 0.00.\n"
                         "Ensure the probabilities sum to a meaningful representation of uncertainty, allowing overlap if both sources are likely relevant."
                     ),
